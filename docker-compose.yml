@@ -22,6 +22,8 @@ services:
       database:
         condition: service_healthy
         restart: true
+      s3:
+        condition: service_healthy
     command: yarn start:dev
     # 1. bind mount the project source (host<->container)
     # 2. set a data volume from container's `$WORKDIR/node_modules/`
@@ -63,6 +65,8 @@ services:
     command: server /data/minio --console-address :9001
     healthcheck:
       test: ['CMD', 'mc', 'ready', 'local']
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 10s
       retries: 5
+    volumes:
+      - .minio_data/:/data
