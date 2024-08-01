@@ -41,15 +41,31 @@ services:
       POSTGRES_DB: pgdatabase
     healthcheck:
       test: ['CMD', 'pg_isready', '-q', '-U', 'pguser', '-d', 'pgdatabase']
-      start_period: 30s
+      start_period: 15s
       interval: 10s
       timeout: 10s
       retries: 5
     volumes:
-      - .pgdata/:/var/lib/postgresql
-      # - .tmp/:/docker-entrypoint-initdb.d
+      - .pgdata:/var/lib/postgresql
+      # - .tmp:/docker-entrypoint-initdb.d
     ports:
       - 5432:5432
+
+  redis:
+    container_name: redis
+    image: redis:7.4.0-alpine3.20
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - .rddata:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
 
   s3:
     image: minio/minio:RELEASE.2024-01-18T22-51-28Z
