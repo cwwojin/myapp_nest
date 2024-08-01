@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
-    pull_policy: build
     image: myapp_nest_image
     restart: unless-stopped
     env_file: .env
@@ -13,6 +12,9 @@ services:
       NODE_ENV: development
       POSTGRES_HOST: database
       POSTGRES_PORT: 5432
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_USER: pguser
+      POSTGRES_DB: pgdatabase
       AWS_S3_ENDPOINT: http://minio_s3:9000
       AWS_ACCESS_KEY_ID: minio
       AWS_SECRET_ACCESS_KEY: miniostorage
@@ -25,13 +27,9 @@ services:
       s3:
         condition: service_healthy
     command: yarn start:dev
-    # 1. bind mount the project source (host<->container)
-    # 2. set a data volume from container's `$WORKDIR/node_modules/`
-    #   -> use the bind mount from host & image's `node_modules` at the same time
-    #   -> Make changes in local & reflect on container (without rebuild)
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - /usr/src/app/.yarn
 
   database:
     container_name: database
