@@ -1,89 +1,103 @@
 services:
-    app-dev:
-        container_name: myapp_nest
-        build:
-            context: .
-            dockerfile: Dockerfile
-            target: dev
-        image: myapp_nest_dev
-        restart: unless-stopped
-        env_file: .env
-        environment:
-            NODE_ENV: development
-            POSTGRES_HOST: database
-            POSTGRES_PORT: 5432
-            POSTGRES_PASSWORD: pgpassword
-            POSTGRES_USER: pguser
-            POSTGRES_DB: pgdatabase
-            AWS_S3_ENDPOINT: http://minio_s3:9000
-            AWS_ACCESS_KEY_ID: minio
-            AWS_SECRET_ACCESS_KEY: miniostorage
-        ports:
-            - 3000:3000
-        depends_on:
-            database:
-                condition: service_healthy
-                restart: true
-            redis:
-                condition: service_healthy
-            s3:
-                condition: service_healthy
-        command: pnpm start:dev
-        volumes:
-            - .:/usr/src/app
-            - /usr/src/app/node_modules
+  app-dev:
+    container_name: myapp_nest_dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    image: myapp_nest_dev
+    pull_policy: build
+    restart: unless-stopped
+    env_file: .development.env
+    ports:
+      - 3000:3000
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+      # redis:
+      #   condition: service_healthy
+      # s3:
+      #   condition: service_healthy
+    command: pnpm start:dev
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    profiles:
+      - dev
 
-    database:
-        container_name: database
-        image: postgres:14.12-alpine3.20
-        restart: always
-        environment:
-            POSTGRES_PASSWORD: pgpassword
-            POSTGRES_USER: pguser
-            POSTGRES_DB: pgdatabase
-        healthcheck:
-            test:
-                ['CMD', 'pg_isready', '-q', '-U', 'pguser', '-d', 'pgdatabase']
-            start_period: 15s
-            interval: 10s
-            timeout: 10s
-            retries: 5
-        volumes:
-            - .pgdata:/var/lib/postgresql
-            # - .tmp:/docker-entrypoint-initdb.d
-        ports:
-            - 5432:5432
+  app-prod:
+    container_name: myapp_nest_prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    image: myapp_nest_dev
+    pull_policy: build
+    restart: always
+    env_file: .production.env
+    ports:
+      - 3000:3000
+    command: pnpm start:prod
+    profiles:
+      - prod
 
-    redis:
-        container_name: redis
-        image: redis:7.4.0-alpine3.20
-        restart: always
-        ports:
-            - 6379:6379
-        command: redis-server /usr/local/etc/redis/redis.conf
-        healthcheck:
-            test: ['CMD', 'redis-cli', 'ping']
-            interval: 10s
-            timeout: 10s
-            retries: 5
-        volumes:
-            - .rddata:/data
-            - ./redis.conf:/usr/local/etc/redis/redis.conf
+  database:
+    container_name: database
+    image: postgres:16.3-alpine3.20
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_USER: pguser
+      POSTGRES_DB: pgdatabase
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-q', '-U', 'pguser', '-d', 'pgdatabase']
+      start_period: 15s
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - .pgdata:/var/lib/postgresql
+      # - .tmp:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    profiles:
+      - dev
 
-    s3:
-        image: minio/minio:RELEASE.2024-01-18T22-51-28Z
-        container_name: minio_s3
-        ports:
-            - 9000:9000
-            - 9001:9001
-        environment:
-            MINIO_ROOT_USER: minio
-            MINIO_ROOT_PASSWORD: miniostorage
-        command: server /data/minio --console-address :9001
-        healthcheck:
-            test: ['CMD', 'mc', 'ready', 'local']
-            interval: 10s
-            timeout: 10s
-            retries: 5
-        volumes:
-            - .minio_data/:/data
+  redis:
+    container_name: redis
+    image: redis:7.4.0-alpine3.20
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - .rddata:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    profiles:
+      - redis
+
+  s3:
+    image: minio/minio:RELEASE.2024-01-18T22-51-28Z
+    container_name: minio_s3
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniostorage
+    command: server /data/minio --console-address :9001
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - .minio_data/:/data
+    profiles:
+      - minio

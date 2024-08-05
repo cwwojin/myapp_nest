@@ -42,7 +42,7 @@ export class User extends BaseEntity {
   email: string;
 
   @Exclude()
-  @Column({ type: 'varchar', length: 32, nullable: false })
+  @Column({ type: 'text', nullable: false })
   @IsString()
   password: string;
 
