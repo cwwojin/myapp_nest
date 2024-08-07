@@ -8,7 +8,6 @@ services:
     image: myapp_nest_dev
     pull_policy: build
     restart: unless-stopped
-    env_file: .development.env
     ports:
       - 3000:3000
     depends_on:
@@ -32,10 +31,9 @@ services:
       context: .
       dockerfile: Dockerfile
       target: prod
-    image: myapp_nest_dev
+    image: url-shortener
     pull_policy: build
     restart: always
-    env_file: .production.env
     ports:
       - 3000:3000
     command: pnpm start:prod

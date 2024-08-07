@@ -21,7 +21,13 @@ export class AwsService {
   async uploadFileToS3(dataBuffer: Buffer, key: string) {
     const client = new S3Client({
       region: this.configService.get('AWS_REGION'),
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
+      endpoint: this.configService.get('AWS_LOCATION'),
     });
+
     const parallelUploads3 = new Upload({
       client,
       params: {
@@ -53,7 +59,13 @@ export class AwsService {
   async deleteFileFromS3(key: string) {
     const client = new S3Client({
       region: this.configService.get('AWS_REGION'),
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
+      endpoint: this.configService.get('AWS_LOCATION'),
     });
+
     const command = new DeleteObjectCommand({
       Bucket: this.configService.get('AWS_BUCKET_NAME'),
       Key: key,
