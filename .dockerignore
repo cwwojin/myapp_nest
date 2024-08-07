@@ -8,9 +8,6 @@ dist
 node_modules
 coverage
 
-# dotenv environment variable files
-**/*.env
-
 # Temp directory
 .temp
 .tmp
