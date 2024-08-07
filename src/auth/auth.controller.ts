@@ -4,7 +4,9 @@ import { AuthService } from '@src/auth/auth.service';
 import { Request } from 'express';
 import { JwtPayload, LocalLoginRequest } from './auth.interface';
 import { UsersService } from '@src/users/users.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(

@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { RedirectModule } from './redirect/redirect.module';
+import { AwsModule } from './aws/aws.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { RedirectModule } from './redirect/redirect.module';
     UrlModule,
     AuthModule,
     RedirectModule,
+    AwsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

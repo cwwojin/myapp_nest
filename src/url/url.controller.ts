@@ -12,7 +12,9 @@ import { UrlService } from './url.service';
 import { CreateUrlDto, DeleteUrlDto } from './dto/url.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { IRequest } from '@src/@types/express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('url')
 @Controller('url')
 export class UrlController {
   constructor(private readonly urlService: UrlService) {}

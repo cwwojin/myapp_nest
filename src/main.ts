@@ -2,7 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
+import { BaseDocumentBuilder } from './utils/swagger/document';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,12 +15,11 @@ async function bootstrap() {
   /* START Swagger Setup                                    */
   /* ====================================================== */
 
-  const config = new DocumentBuilder()
-    .setTitle('URL Shortener App - Backend')
-    .setDescription('The URL Shortener Backend - API Description')
-    .setVersion('0.0.1')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
+  const documentBuilder = new BaseDocumentBuilder();
+  const document = SwaggerModule.createDocument(
+    app,
+    documentBuilder.initOptions(),
+  );
   SwaggerModule.setup('docs', app, document);
 
   /* ====================================================== */

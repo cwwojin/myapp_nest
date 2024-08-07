@@ -15,7 +15,9 @@ import {
 } from '@src/users/dto/users.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { IRequest } from '@src/@types/express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
