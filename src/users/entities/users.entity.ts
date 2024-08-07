@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   Check,
   Index,
   BeforeInsert,
@@ -20,7 +21,7 @@ import { BCRYPT_SALTROUNDS } from '@src/utils/constants';
 /**
  * Users Table.
  */
-@Entity('users')
+@Entity('user')
 @Index(['id', 'email'])
 @Check(`"username" <> '' AND "password" <> ''`)
 export class User extends BaseEntity {
@@ -50,8 +51,14 @@ export class User extends BaseEntity {
   @IsString()
   username: string;
 
+  @Exclude()
+  @Column({ type: 'text', nullable: true })
+  @IsString()
+  refreshToken: string;
+
   @CreateDateColumn() createdAt: Date;
   @UpdateDateColumn() updatedAt: Date;
+  @DeleteDateColumn() deletedAt: Date;
 
   /* ====================================================== */
   /* START One-To-Many Relations                            */
@@ -74,12 +81,19 @@ export class User extends BaseEntity {
   }
 
   async hashPassword(password: string) {
-    const hashedPassword = await bcrypt.hash(password, BCRYPT_SALTROUNDS);
-    return hashedPassword;
+    return await bcrypt.hash(password, BCRYPT_SALTROUNDS);
   }
 
   async comparePassword(password: string, hashedPassword: string) {
     return await bcrypt.compare(password, hashedPassword);
+  }
+
+  async hashRefreshToken(refreshToken: string) {
+    return await bcrypt.hash(refreshToken, BCRYPT_SALTROUNDS);
+  }
+
+  async compareRefreshToken(refreshToken: string, hashedToken: string) {
+    return await bcrypt.compare(refreshToken, hashedToken);
   }
 
   /* ====================================================== */

@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { AuthModule } from './auth/auth.module';
+import { RedirectModule } from './redirect/redirect.module';
 
 @Module({
   imports: [
@@ -33,11 +35,14 @@ import { DataSource } from 'typeorm';
         entities: ['dist/**/*.entity{.ts,.js}'],
         migrations: ['dist/migrations/*.js'],
         logging: true,
+        // set FALSE for prod
         synchronize: true,
       }),
     }),
     UsersModule,
     UrlModule,
+    AuthModule,
+    RedirectModule,
   ],
   controllers: [AppController],
   providers: [AppService],

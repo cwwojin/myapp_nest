@@ -1,1 +1,1 @@
-export { URL } from './url.entity';
+export { URL, URLMeta, URLClickHistory } from './url.entity';
