@@ -3,7 +3,9 @@ FROM node:18.20.4-alpine3.20 AS base
 # Local Timezone - Seoul (UTC+09)
 ENV TZ=Asia/Seoul
 RUN apk add tzdata &&\
-    ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+    ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime &&\
+    echo "Asia/Seoul" > /etc/timezone \
+    apk del tzdata
 
 # PNPM Setup
 ENV PNPM_HOME="/pnpm"

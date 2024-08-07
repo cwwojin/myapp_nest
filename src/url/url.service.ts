@@ -129,7 +129,10 @@ export class UrlService {
    * @param urlId - the URL ID in DB
    * @returns The retrieved data object
    */
-  async getUrlMeta(urlId: number) {
+  async getUrlMeta(userId: string, urlId: number) {
+    const user = await this.usersService.getUserById(userId);
+    if (!user) throw new NotFoundException(`No User Found : ${userId}`);
+
     const result = await URLMeta.createQueryBuilder('m')
       .select([
         'm.pk',
@@ -141,6 +144,7 @@ export class UrlService {
       ])
       .innerJoin('url', 'url', 'm.urlId = url.pk')
       .where('m.urlId = :urlId', { urlId })
+      .andWhere('m.userId = :userId', { userId: user.pk })
       .getOne();
 
     if (result) {
@@ -156,9 +160,21 @@ export class UrlService {
    * @param urlId - URL ID
    * @returns The list of returned data objects, and the count.
    */
-  async getUrlHistory(urlId: number) {
+  async getUrlHistory(userId: string, urlId: number) {
+    const user = await this.usersService.getUserById(userId);
+    if (!user) throw new NotFoundException(`No User Found : ${userId}`);
+
     const result = await URLClickHistory.createQueryBuilder('uh')
+      .select([
+        'uh.pk',
+        'uh.urlId',
+        'uh.clickedTime',
+        'uh.createdAt',
+        'uh.updatedAt',
+      ])
+      .leftJoin('url_meta', 'um', 'um.urlId = uh.urlId')
       .where('uh.urlId = :urlId', { urlId })
+      .andWhere('um.userId = :userId', { userId: user.pk })
       .getManyAndCount();
 
     if (result) {

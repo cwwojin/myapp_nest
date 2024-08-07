@@ -117,6 +117,7 @@ export class URLMeta extends BaseEntity {
 }
 
 @Entity()
+@Index(['urlId'])
 export class URLClickHistory extends BaseEntity {
   @PrimaryGeneratedColumn()
   pk: number;

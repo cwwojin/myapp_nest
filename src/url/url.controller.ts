@@ -42,8 +42,15 @@ export class UrlController {
     return await this.urlService.deleteShortUrl(req.user.id, deleteUrlDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('inspect/:urlId')
-  async getUrlMeta(@Param('urlId') urlId: number) {
-    return await this.urlService.getUrlMeta(urlId);
+  async getUrlMeta(@Req() req: IRequest, @Param('urlId') urlId: number) {
+    return await this.urlService.getUrlMeta(req.user.id, urlId);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('history/:urlId')
+  async getUrlHistory(@Req() req: IRequest, @Param('urlId') urlId: number) {
+    return await this.urlService.getUrlHistory(req.user.id, urlId);
   }
 }
