@@ -66,6 +66,7 @@ export class UrlService {
   async getOriginalUrl(shortUrl: string) {
     const result = await URL.createQueryBuilder('url')
       .select([
+        'url.pk',
         'url.shortUrl',
         'url.originalUrl',
         'url.createdAt',
@@ -132,8 +133,6 @@ export class UrlService {
     const result = await URLMeta.createQueryBuilder('m')
       .select([
         'm.pk',
-        'url.shortUrl',
-        'url.originalUrl',
         'm.urlId',
         'm.userId',
         'm.lastClickedTime',
