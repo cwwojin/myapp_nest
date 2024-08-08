@@ -14,12 +14,15 @@ import {
   DeleteUserDto,
   UpdateRefreshTokenDto,
 } from '@src/users/dto/users.dto';
+import { AwsService } from '@src/aws/aws.service';
+import { getFileExtension } from '@src/utils/functions';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly configService: ConfigService,
     private readonly dataSource: DataSource,
+    private readonly awsService: AwsService,
   ) {}
 
   /**
@@ -233,6 +236,72 @@ export class UsersService {
       throw new NotFoundException(
         `No Data Found with the given user ID : ${userId}`,
       );
+    }
+  }
+
+  /**
+   * Upload a User Profile Image.
+   *
+   * @param userId - User ID
+   * @param file - The uploaded file
+   * @returns The saved file location in S3
+   */
+  async updateProfileImage(userId: string, file: Express.Multer.File) {
+    const user = await this.getUserById(userId);
+    if (!user) throw new NotFoundException(`No User Found : ${userId}`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      if (!file) throw new BadRequestException(`Please attach a valid file.`);
+
+      const { buffer, originalname } = file;
+      const awsLocation = this.configService.get('AWS_LOCATION');
+      const extension = getFileExtension(originalname);
+      const destKey = `images/users/${userId}/${Date.now()}.${extension}`;
+      const destLocation = `${awsLocation}/${destKey}`;
+
+      await this.awsService.uploadFileToS3(buffer, destKey);
+
+      user.profileImageKey = destKey;
+      await queryRunner.manager.save(user);
+      await queryRunner.commitTransaction();
+
+      return destLocation;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async deleteProfileImage(userId: string) {
+    const user = await this.getUserById(userId);
+    if (!user) throw new NotFoundException(`No User Found : ${userId}`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const fileKey = user.profileImageKey;
+      if (fileKey.length) {
+        await this.awsService.deleteFileFromS3(fileKey);
+      }
+
+      user.profileImageKey = '';
+      await queryRunner.manager.save(user);
+      await queryRunner.commitTransaction();
+
+      return HttpStatus.OK;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
     }
   }
 }

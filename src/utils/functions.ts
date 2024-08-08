@@ -39,3 +39,9 @@ export function fromBase62(s: string) {
 
   return result;
 }
+
+/**
+ * Get File extension.
+ */
+export const getFileExtension = (originalname: string) =>
+  originalname.split('.').slice(-1).toString();

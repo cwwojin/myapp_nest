@@ -26,6 +26,7 @@ export class AwsService {
         secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
       },
       endpoint: this.configService.get('AWS_LOCATION'),
+      forcePathStyle: true,
     });
 
     const parallelUploads3 = new Upload({
@@ -64,6 +65,7 @@ export class AwsService {
         secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
       },
       endpoint: this.configService.get('AWS_LOCATION'),
+      forcePathStyle: true,
     });
 
     const command = new DeleteObjectCommand({

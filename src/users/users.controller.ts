@@ -3,9 +3,12 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Req,
   Body,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from '@src/users/users.service';
 import {
@@ -16,6 +19,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { IRequest } from '@src/@types/express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('users')
 @Controller('users')
@@ -70,5 +74,26 @@ export class UsersController {
   @Get('url')
   async getMyUrls(@Req() req: IRequest) {
     return await this.usersService.getMyUrls(req.user.id);
+  }
+
+  @ApiOperation({
+    summary: `Upload a user profile image.`,
+  })
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('profile-img')
+  async updateProfileImage(
+    @Req() req: IRequest,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return await this.usersService.updateProfileImage(req.user.id, file);
+  }
+
+  @ApiOperation({
+    summary: `Delete a user profile image`,
+  })
+  @Delete('profile-img')
+  async deleteProfileImage(@Req() req: IRequest) {
+    return await this.usersService.deleteProfileImage(req.user.id);
   }
 }

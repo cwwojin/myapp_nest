@@ -56,6 +56,10 @@ export class User extends BaseEntity {
   @IsString()
   refreshToken: string;
 
+  @Column({ type: 'text', default: '' })
+  @IsString()
+  profileImageKey: string;
+
   @CreateDateColumn() createdAt: Date;
   @UpdateDateColumn() updatedAt: Date;
   @DeleteDateColumn() deletedAt: Date;
