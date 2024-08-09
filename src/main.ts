@@ -1,4 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -10,6 +11,33 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const NODE_ENV = configService.get<string>('NODE_ENV') || 'development';
   const PORT = 3000;
+
+  /* ====================================================== */
+  /* START CORS Config                                      */
+  /* ====================================================== */
+
+  let corsConfig: CorsOptions;
+
+  if (NODE_ENV === 'production') {
+    corsConfig = {
+      origin: '*',
+      methods: 'GET,HEAD,PATCH,POST,DELETE',
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+      credentials: true,
+    };
+  } else {
+    corsConfig = {
+      origin: '*',
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+      credentials: true,
+    };
+  }
+
+  /* ====================================================== */
+  /* END CORS Config                                        */
+  /* ====================================================== */
 
   /* ====================================================== */
   /* START Swagger Setup                                    */
@@ -35,6 +63,7 @@ async function bootstrap() {
   console.log(configService);
 
   app.useGlobalPipes(new ValidationPipe());
+  app.enableCors(corsConfig);
   await app.listen(PORT);
 }
 bootstrap();
