@@ -263,12 +263,12 @@ export class UsersService {
       // const awsLocation = this.configService.get('AWS_LOCATION');
       // const destLocation = `${awsLocation}/${destKey}`;
 
-      const { Location, Key } = await this.awsService.uploadFileToS3(
+      const { Location } = await this.awsService.uploadFileToS3(
         buffer,
         destKey,
       );
 
-      user.profileImageKey = Key;
+      user.profileImageFile = Location;
       await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
 
@@ -290,12 +290,16 @@ export class UsersService {
     await queryRunner.startTransaction();
 
     try {
-      const fileKey = user.profileImageKey;
-      if (fileKey.length) {
-        await this.awsService.deleteFileFromS3(fileKey);
-      }
+      // const fileLocation = user.profileImageFile;
+      // if (fileLocation.length) {
+      //   const fileKey = fileLocation.replace(
+      //     `${this.configService.get('AWS_LOCATION')}/`,
+      //     '',
+      //   );
+      //   await this.awsService.deleteFileFromS3(fileKey);
+      // }
 
-      user.profileImageKey = '';
+      user.profileImageFile = '';
       await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
 
