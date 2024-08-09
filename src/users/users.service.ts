@@ -258,18 +258,21 @@ export class UsersService {
       if (!file) throw new BadRequestException(`Please attach a valid file.`);
 
       const { buffer, originalname } = file;
-      const awsLocation = this.configService.get('AWS_LOCATION');
       const extension = getFileExtension(originalname);
       const destKey = `images/users/${userId}/${Date.now()}.${extension}`;
-      const destLocation = `${awsLocation}/${destKey}`;
+      // const awsLocation = this.configService.get('AWS_LOCATION');
+      // const destLocation = `${awsLocation}/${destKey}`;
 
-      await this.awsService.uploadFileToS3(buffer, destKey);
+      const { Location, Key } = await this.awsService.uploadFileToS3(
+        buffer,
+        destKey,
+      );
 
-      user.profileImageKey = destKey;
+      user.profileImageKey = Key;
       await queryRunner.manager.save(user);
       await queryRunner.commitTransaction();
 
-      return destLocation;
+      return Location;
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;
