@@ -18,7 +18,7 @@ import {
 } from '@src/users/dto/users.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { IRequest } from '@src/@types/express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags, ApiResponse } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('users')
@@ -29,6 +29,28 @@ export class UsersController {
   @ApiOperation({
     summary: `Create a new user.`,
   })
+  @ApiResponse({
+    status: 201,
+    description: 'success',
+    schema: {
+      type: 'object',
+      properties: {
+        pk: { type: 'number' },
+        id: { type: 'string' },
+        email: { type: 'string' },
+        username: { type: 'string' },
+        password: { type: 'string', description: 'Bcrypt hash' },
+        refreshToken: { type: 'string', description: 'Initial value : NULL' },
+        profileImageFile: {
+          type: 'string',
+          description: 'File location in S3',
+        },
+        createdAt: { type: 'Date' },
+        updatedAt: { type: 'Date' },
+        deletedAt: { type: 'Date' },
+      },
+    },
+  })
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.signUp(createUserDto);
@@ -37,6 +59,22 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: `Get my account information.`,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'success',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        email: { type: 'string' },
+        username: { type: 'string' },
+        profileImageFile: {
+          type: 'string',
+          description: 'File location in S3',
+        },
+      },
+    },
   })
   @Get('myAccount')
   async getMyAccountInfo(@Req() req: IRequest) {
@@ -71,6 +109,27 @@ export class UsersController {
   @ApiOperation({
     summary: `Get all URLs saved by a user`,
   })
+  @ApiResponse({
+    status: 200,
+    description: 'success',
+    schema: {
+      type: 'array',
+      properties: {
+        pk: { type: 'number' },
+        lastClickedTime: {
+          type: 'Date',
+          description: 'Timestamp of the latest click of this URL',
+        },
+      },
+      example: [
+        {
+          pk: 1,
+          lastClickedTime: 'TIMESTAMP',
+        },
+        1,
+      ],
+    },
+  })
   @Get('url')
   async getMyUrls(@Req() req: IRequest) {
     return await this.usersService.getMyUrls(req.user.id);
@@ -78,6 +137,26 @@ export class UsersController {
 
   @ApiOperation({
     summary: `Upload a user profile image.`,
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'File',
+          description: 'Uploaded Image File',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'success',
+    schema: {
+      type: 'string',
+      description: 'File Location in S3',
+      example: 'https://my-storage.s3.amazonaws.com/path/to/file.jpg',
+    },
   })
   @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(FileInterceptor('file'))

@@ -85,7 +85,7 @@ export class UsersService {
    */
   async getMyAccountInfo(userId: string) {
     const result = await User.createQueryBuilder('u')
-      .select(['u.id', 'u.email', 'u.username'])
+      .select(['u.id', 'u.email', 'u.username', 'u.profileImageFile'])
       .where('u.id = :userId', { userId })
       .getOne();
 
