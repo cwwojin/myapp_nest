@@ -37,7 +37,7 @@ import { AwsModule } from './aws/aws.module';
         migrations: ['dist/migrations/*.js'],
         logging: true,
         // set FALSE for prod
-        synchronize: true,
+        synchronize: false,
       }),
     }),
     UsersModule,
