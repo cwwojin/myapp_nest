@@ -36,7 +36,6 @@ services:
     restart: always
     ports:
       - 3000:3000
-    command: pnpm start:prod
     profiles:
       - prod
 
@@ -80,7 +79,8 @@ services:
       - redis
 
   minio-s3:
-    image: minio/minio:RELEASE.2024-01-18T22-51-28Z
+    platform: linux/amd64
+    image: minio/minio:RELEASE.2024-08-03T04-33-23Z
     container_name: minio-s3
     ports:
       - 9000:9000
