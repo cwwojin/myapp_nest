@@ -58,7 +58,7 @@ export class User extends BaseEntity {
 
   @Column({ type: 'text', default: '' })
   @IsString()
-  profileImageKey: string;
+  profileImageFile: string;
 
   @CreateDateColumn() createdAt: Date;
   @UpdateDateColumn() updatedAt: Date;

@@ -92,6 +92,7 @@ export class UsersController {
   @ApiOperation({
     summary: `Delete a user profile image`,
   })
+  @UseGuards(AuthGuard('jwt'))
   @Delete('profile-img')
   async deleteProfileImage(@Req() req: IRequest) {
     return await this.usersService.deleteProfileImage(req.user.id);
