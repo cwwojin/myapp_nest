@@ -43,6 +43,7 @@ env:
   CONTAINER_NAME:
     ${{ secrets.MY_CONTAINER_NAME }} # set this to the name of the container in the
     # containerDefinitions section of your task definition
+  S3_BUCKET_NAME: ${{ secrets.MY_BUCKET_NAME }}
 
 permissions:
   contents: read
@@ -63,6 +64,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download .production.env file
+        uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: s3://${{ env.S3_BUCKET_NAME }}/env/.production.env
+          destination: ./.production.env
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
