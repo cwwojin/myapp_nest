@@ -12,7 +12,7 @@ import { UrlService } from './url.service';
 import { CreateUrlDto, DeleteUrlDto } from './dto/url.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { IRequest } from '@src/@types/express';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('url')
 @Controller('url')
@@ -22,6 +22,27 @@ export class UrlController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: `Generate a new short-URL and save to DB.`,
+  })
+  @ApiResponse({
+    status: 201,
+    schema: {
+      type: 'object',
+      properties: {
+        pk: { type: 'number' },
+        shortUrl: {
+          type: 'string',
+          description: 'Shortened URL : 6-digit Base62 string',
+          example: '010113',
+        },
+        originalUrl: {
+          type: 'string',
+          description: 'Original (Long) URL',
+          example: 'www.long-website-name.com/long/path/to/resource',
+        },
+        createdAt: { type: 'Date' },
+        updatedAt: { type: 'Date' },
+      },
+    },
   })
   @Post('new')
   async generateShortUrl(
@@ -39,6 +60,27 @@ export class UrlController {
     type: 'string',
     description: 'short-URL',
     example: '000001',
+  })
+  @ApiResponse({
+    status: 200,
+    schema: {
+      type: 'object',
+      properties: {
+        pk: { type: 'number' },
+        shortUrl: {
+          type: 'string',
+          description: 'Shortened URL : 6-digit Base62 string',
+          example: '010113',
+        },
+        originalUrl: {
+          type: 'string',
+          description: 'Original (Long) URL',
+          example: 'www.long-website-name.com/long/path/to/resource',
+        },
+        createdAt: { type: 'Date' },
+        updatedAt: { type: 'Date' },
+      },
+    },
   })
   @Get('get/:shortUrl')
   async getOriginalUrl(@Param('shortUrl') shortUrl: string) {
@@ -75,6 +117,22 @@ export class UrlController {
     description: 'URL Primary Key ID',
     example: '1',
   })
+  @ApiResponse({
+    status: 200,
+    schema: {
+      type: 'object',
+      properties: {
+        pk: { type: 'number' },
+        lastClickedTime: {
+          type: 'Date',
+          description: 'Timestamp of the latest click to this URL',
+          example: 'TIMESTAMP',
+        },
+        createdAt: { type: 'Date' },
+        updatedAt: { type: 'Date' },
+      },
+    },
+  })
   @Get('inspect/:urlId')
   async getUrlMeta(@Req() req: IRequest, @Param('urlId') urlId: number) {
     return await this.urlService.getUrlMeta(req.user.id, urlId);
@@ -89,6 +147,31 @@ export class UrlController {
     type: 'number',
     description: 'URL Primary Key ID',
     example: '1',
+  })
+  @ApiResponse({
+    status: 200,
+    schema: {
+      type: 'list',
+      properties: {
+        pk: { type: 'number' },
+        clickedTime: {
+          type: 'Date',
+          description: 'Timestamp of the click',
+          example: 'TIMESTAMP',
+        },
+        createdAt: { type: 'Date' },
+        updatedAt: { type: 'Date' },
+      },
+      example: [
+        {
+          pk: 1,
+          clickedTime: 'TIMESTAMP',
+          createdAt: 'TIMESTAMP',
+          updatedAt: 'TIMESTAMP',
+        },
+        1,
+      ],
+    },
   })
   @Get('history/:urlId')
   async getUrlHistory(@Req() req: IRequest, @Param('urlId') urlId: number) {
